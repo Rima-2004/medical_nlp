@@ -1,5 +1,5 @@
 function countChars() {
-  let text = document.getElementById("textInput").value;
+  const text = document.getElementById("textInput").value;
   document.getElementById("charCount").innerText = text.length + " characters";
 }
 
@@ -18,13 +18,18 @@ function analyzeText() {
   }
 
   fetch("/ner", {
-    method: "POST", // ✅ MUST be POST
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ text: text }),
   })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Server error");
+      }
+      return response.json();
+    })
     .then((data) => {
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "";
@@ -34,16 +39,16 @@ function analyzeText() {
         return;
       }
 
-      let list = "<ul>";
+      let html = "<h3>Extracted Medical Entities</h3><ul>";
       data.entities.forEach((ent) => {
-        list += `<li><b>${ent.text}</b> — ${ent.label}</li>`;
+        html += `<li><b>${ent.text}</b> — ${ent.label}</li>`;
       });
-      list += "</ul>";
+      html += "</ul>";
 
-      resultDiv.innerHTML = list;
+      resultDiv.innerHTML = html;
     })
     .catch((error) => {
-      console.error("Error:", error);
+      console.error("Fetch error:", error);
       alert("Error analyzing text.");
     });
 }

@@ -22,27 +22,32 @@ def home():
 # Medical NER API
 @app.route("/ner", methods=["POST"])
 def medical_ner():
-    data = request.get_json()
+    try:
+        data = request.get_json(force=True)
 
-    if not data or "text" not in data:
-        return jsonify({"error": "Text field is required"}), 400
+        if not data or "text" not in data:
+            return jsonify({"error": "Text field is required"}), 400
 
-    text = data["text"]
+        text = data["text"].strip()
+        if not text:
+            return jsonify({"entities": []})
 
-    nlp_model = load_nlp()
-    doc = nlp_model(text)
+        nlp_model = load_nlp()
+        doc = nlp_model(text)
 
-    entities = []
-    for ent in doc.ents:
-        entities.append({
-            "text": ent.text,
-            "label": ent.label_
+        entities = [
+            {"text": ent.text, "label": ent.label_}
+            for ent in doc.ents
+        ]
+
+        return jsonify({
+            "text": text,
+            "entities": entities
         })
 
-    return jsonify({
-        "text": text,
-        "entities": entities
-    })
+    except Exception as e:
+        print("NER ERROR:", e)  # shows in Render logs
+        return jsonify({"error": "Error analyzing text"}), 500
 
 
 if __name__ == "__main__":
