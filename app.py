@@ -1,78 +1,27 @@
-# from flask import Flask, render_template, request
-# import spacy
-
-# # Load Medical NER Model
-# nlp = spacy.load("en_ner_bc5cdr_md")
-
-# app = Flask(__name__)
-
-# @app.route("/", methods=["GET", "POST"])
-# def index():
-#     entities = []
-#     text = ""
-
-#     if request.method == "POST":
-#         text = request.form.get("text")
-#         doc = nlp(text)
-
-#         for ent in doc.ents:
-#             entities.append({
-#                 "text": ent.text,
-#                 "label": ent.label_
-#             })
-
-#     return render_template("index.html", text=text, entities=entities)
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
-
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import spacy
 import os
 
 app = Flask(__name__)
 
-# Global NLP object (lazy-loaded)
 nlp = None
 
-
 def load_nlp():
-    """
-    Load the spaCy model only once.
-    Prevents Railway build/startup crashes.
-    """
     global nlp
     if nlp is None:
         nlp = spacy.load("en_ner_bc5cdr_md")
     return nlp
 
 
+# UI Page
 @app.route("/", methods=["GET"])
-def health_check():
-    return jsonify({
-        "status": "ok",
-        "message": "Medical NLP API running successfully"
-    })
+def home():
+    return render_template("index.html")
 
 
+# Medical NER API
 @app.route("/ner", methods=["POST"])
 def medical_ner():
-    """
-    Input:
-    {
-        "text": "Aspirin is used to treat headache."
-    }
-
-    Output:
-    {
-        "entities": [
-            {"text": "Aspirin", "label": "CHEMICAL"},
-            {"text": "headache", "label": "DISEASE"}
-        ]
-    }
-    """
     data = request.get_json()
 
     if not data or "text" not in data:
