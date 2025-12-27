@@ -1,25 +1,25 @@
 from flask import Flask, request, jsonify, render_template
 import spacy
 import os
+import sys
 
 app = Flask(__name__)
 
-nlp = None
+# 🔴 LOAD MODEL AT STARTUP (IMPORTANT)
+try:
+    print("Loading spaCy model...")
+    nlp = spacy.load("en_ner_bc5cdr_md")
+    print("spaCy model loaded successfully.")
+except Exception as e:
+    print("FAILED TO LOAD MODEL:", e)
+    sys.exit(1)   # stop app if model fails
 
-def load_nlp():
-    global nlp
-    if nlp is None:
-        nlp = spacy.load("en_ner_bc5cdr_md")
-    return nlp
 
-
-# UI Page
 @app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
 
 
-# Medical NER API
 @app.route("/ner", methods=["POST"])
 def medical_ner():
     try:
@@ -32,21 +32,17 @@ def medical_ner():
         if not text:
             return jsonify({"entities": []})
 
-        nlp_model = load_nlp()
-        doc = nlp_model(text)
+        doc = nlp(text)
 
         entities = [
             {"text": ent.text, "label": ent.label_}
             for ent in doc.ents
         ]
 
-        return jsonify({
-            "text": text,
-            "entities": entities
-        })
+        return jsonify({"entities": entities})
 
     except Exception as e:
-        print("NER ERROR:", e)  # shows in Render logs
+        print("NER ERROR:", e)
         return jsonify({"error": "Error analyzing text"}), 500
 
 
