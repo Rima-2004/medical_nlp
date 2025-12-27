@@ -4,18 +4,13 @@ import os
 
 app = Flask(__name__)
 
-nlp = None
-
-def get_nlp():
-    global nlp
-    if nlp is None:
-        print("Loading spaCy model...")
-        nlp = spacy.load("en_ner_bc5cdr_md")
-        print("Model loaded")
-    return nlp
+# 🔹 Load LIGHT spaCy model (Render-safe)
+print("Loading spaCy small model...")
+nlp = spacy.load("en_core_web_sm")
+print("spaCy model loaded successfully")
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
 
@@ -32,7 +27,7 @@ def medical_ner():
         if not text:
             return jsonify({"entities": []})
 
-        doc = get_nlp()(text)
+        doc = nlp(text)
 
         entities = [
             {"text": ent.text, "label": ent.label_}
@@ -43,7 +38,7 @@ def medical_ner():
 
     except Exception as e:
         print("NER ERROR:", e)
-        return jsonify({"error": "NER failed"}), 500
+        return jsonify({"error": "Error analyzing text"}), 500
 
 
 if __name__ == "__main__":
