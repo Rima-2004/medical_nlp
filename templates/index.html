@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Medical Text Entity Identifier</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <!-- Floating medical background icons -->
+    <div class="bg-icons">
+      <span>🧬</span>
+      <span>💊</span>
+      <span>🩺</span>
+      <span>🧪</span>
+      <span>🏥</span>
+      <span>🧬</span>
+    </div>
+
+    <div class="app-card">
+      <!-- ECG Heartbeat Animation (VISIBLE) -->
+      <div class="medical-heart">🫀</div>
+      <div class="ecg-container">
+        <svg viewBox="0 0 600 100" class="ecg">
+          <!-- Base ECG line -->
+
+          <line x1="0" y1="50" x2="600" y2="50" class="ecg-base" />
+
+          <!-- Animated heartbeat wave -->
+          <polyline
+            points="0,50 80,50 100,20 120,80 140,50
+                        200,50 230,30 260,70 290,50 600,50"
+            class="ecg-line"
+          />
+        </svg>
+      </div>
+
+      <h1>🩺 Medical Text Entity Identifier</h1>
+      <p class="subtitle">AI-powered extraction of diseases & medical terms</p>
+
+      <form method="POST">
+        <textarea
+          name="text"
+          id="textInput"
+          placeholder="Enter medical text here..."
+          oninput="countChars()"
+          required
+        >
+{{ text }}</textarea
+        >
+
+        <div class="controls">
+          <span id="charCount">0 characters</span>
+          <div>
+            <button type="submit" class="analyze-btn">Analyze</button>
+            <button type="button" class="clear-btn" onclick="clearText()">
+              Clear
+            </button>
+          </div>
+        </div>
+      </form>
+
+      {% if entities %}
+      <h2>Extracted Medical Entities</h2>
+      <table>
+        <tr>
+          <th>Entity</th>
+          <th>Category</th>
+        </tr>
+        {% for e in entities %}
+        <tr>
+          <td>{{ e.text }}</td>
+          <td class="tag">{{ e.label }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+    </div>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>
