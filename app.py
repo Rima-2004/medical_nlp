@@ -3,7 +3,7 @@ import spacy
 
 app = Flask(__name__)
 
-nlp = None  # lazy load
+nlp = None
 
 def load_model():
     global nlp
@@ -18,13 +18,9 @@ def index():
 
     if request.method == "POST":
         text = request.form.get("text")
-        nlp_model = load_model()
-        doc = nlp_model(text)
+        doc = load_model()(text)
         for ent in doc.ents:
-            entities.append({
-                "text": ent.text,
-                "label": ent.label_
-            })
+            entities.append({"text": ent.text, "label": ent.label_})
 
     return render_template("index.html", text=text, entities=entities)
 
