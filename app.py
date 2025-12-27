@@ -1,21 +1,21 @@
 from flask import Flask, request, jsonify, render_template
 import spacy
 import os
-import sys
 
 app = Flask(__name__)
 
-# 🔴 LOAD MODEL AT STARTUP (IMPORTANT)
-try:
-    print("Loading spaCy model...")
-    nlp = spacy.load("en_ner_bc5cdr_md")
-    print("spaCy model loaded successfully.")
-except Exception as e:
-    print("FAILED TO LOAD MODEL:", e)
-    sys.exit(1)   # stop app if model fails
+nlp = None
+
+def get_nlp():
+    global nlp
+    if nlp is None:
+        print("Loading spaCy model...")
+        nlp = spacy.load("en_ner_bc5cdr_md")
+        print("Model loaded")
+    return nlp
 
 
-@app.route("/", methods=["GET"])
+@app.route("/")
 def home():
     return render_template("index.html")
 
@@ -26,13 +26,13 @@ def medical_ner():
         data = request.get_json(force=True)
 
         if not data or "text" not in data:
-            return jsonify({"error": "Text field is required"}), 400
+            return jsonify({"entities": []})
 
         text = data["text"].strip()
         if not text:
             return jsonify({"entities": []})
 
-        doc = nlp(text)
+        doc = get_nlp()(text)
 
         entities = [
             {"text": ent.text, "label": ent.label_}
@@ -43,7 +43,7 @@ def medical_ner():
 
     except Exception as e:
         print("NER ERROR:", e)
-        return jsonify({"error": "Error analyzing text"}), 500
+        return jsonify({"error": "NER failed"}), 500
 
 
 if __name__ == "__main__":
