@@ -1,17 +1,10 @@
-# flask
-# spacy
-# scispacy
-# gunicorn
-# https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bc5cdr_md-0.5.1.tar.gz
-
-
 flask==3.0.0
 gunicorn==21.2.0
 
 numpy==1.26.4
 scipy==1.11.4
 
-spacy==3.7.2
+spacy==3.6.1
 scispacy==0.5.3
 
 https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_ner_bc5cdr_md-0.5.3.tar.gz
